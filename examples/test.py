@@ -2,7 +2,7 @@
 
 import asyncio
 from mavsdk import System
-from utils import haversine_distance
+from src.utils import haversine_distance
 import math
 
 async def update_position(drone):

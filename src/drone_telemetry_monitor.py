@@ -7,7 +7,7 @@ from utils import haversine_distance
 
 class DroneTelemetryMonitor:
     def __init__(self,drone):
-        self.csv_path = "collected_telemetry.csv"
+        self.csv_path = "res/collected_telemetry.csv"
         self.drone = drone
         self.scenario_name = ""
         self.telemetry_data = {

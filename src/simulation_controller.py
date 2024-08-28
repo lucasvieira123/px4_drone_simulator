@@ -37,9 +37,9 @@ class SimulationController:
         try:
             if self.PX4_Autopilot_process:
                 # Obtém o diretório onde o arquivo Python atual está localizado
-                script_dir = os.path.dirname(os.path.abspath(__file__))
+                parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 # Constrói o caminho completo para o script bash
-                script_path = os.path.join(script_dir, "kill_between_make_and_ruby.sh")
+                script_path = os.path.join(parent_dir, "kill_between_make_and_ruby.sh")
                 # Executa o script bash
                 subprocess.run([script_path], shell=True, executable='/bin/bash')
 
