@@ -1,4 +1,5 @@
 import asyncio
+import os
 from mavsdk import System
 import threading
 from datetime import datetime
@@ -6,8 +7,9 @@ import csv
 from utils import haversine_distance
 
 class DroneTelemetryMonitor:
-    def __init__(self,drone):
-        self.csv_path = "res/collected_telemetry.csv"
+    def __init__(self, drone):
+        self.csv_parent_path = "/mnt/c/Users/lucas/Workspace/unexpected_scenario_handling_system/res/collected_data/"
+        self.current_csv_name = self.get_current_csv_name("PX4_collected_telemetry_{}.csv")
         self.drone = drone
         self.scenario_name = ""
         self.telemetry_data = {
@@ -33,20 +35,29 @@ class DroneTelemetryMonitor:
             "is_armed" : False,
             "goals":""
         }
+
+        self.tasks = []
+    
+    def get_current_csv_name(self, template_csv_name):
+        files = os.listdir(self.csv_parent_path)
+        num_files = len(files)
+
+        return template_csv_name.format(num_files)
     
     async def save_telemetry_data(self):
 
         # Verificar se o arquivo já existe ou precisa ser criado
+        current_file_path = os.path.join(self.csv_parent_path, self.current_csv_name)
         while(True):
             file_exists = False
             try:
-                with open(self.csv_path, 'r'):
+                with open(current_file_path, 'r'):
                     file_exists = True
             except FileNotFoundError:
                 file_exists = False
 
             # Abrir o arquivo CSV para escrita (adicionando novas linhas)
-            with open(self.csv_path, mode='a', newline='') as file:
+            with open(current_file_path, mode='a', newline='') as file:
                 writer = csv.DictWriter(file, fieldnames=self.telemetry_data.keys())
 
                 # Se o arquivo não existia, escrever o cabeçalho
@@ -161,6 +172,12 @@ class DroneTelemetryMonitor:
             self.monitor_is_armed()
         ]
         await asyncio.gather(*tasks)
+
+    def stop_monitoring(self):
+        # Cancela todas as tarefas armazenadas
+        for task in self.tasks:
+            task.cancel()
+        print("Todas as tarefas de monitoramento foram canceladas.")
             
     def start_monitoring(self):
         loop = asyncio.get_event_loop()

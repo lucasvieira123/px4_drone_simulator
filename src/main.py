@@ -28,6 +28,8 @@ async def run():
         drone_controller = DroneController(drone)
         goal = await drone_controller.execute_mission()
         simulador_controller.kill_all_process()
+        
+
         asyncio.sleep(10)
         # simulador_controller.start_all_processes()
         current_execution = current_execution +1

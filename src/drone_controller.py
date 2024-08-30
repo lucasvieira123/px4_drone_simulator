@@ -11,6 +11,8 @@ class DroneController:
     async def execute_mission(self):
         goal = False
 
+        
+
         self.monitor.set_target_position(-3.786700, -38.551971, 5)
    
         print("Waiting for drone to have a global position estimate...")
@@ -84,5 +86,7 @@ class DroneController:
         goal = True
 
         await asyncio.sleep(10)
+
+        self.monitor.stop_monitoring()
 
         return goal
