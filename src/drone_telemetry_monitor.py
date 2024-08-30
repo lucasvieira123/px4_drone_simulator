@@ -33,6 +33,7 @@ class DroneTelemetryMonitor:
             "onWater":None,
             "bad_connection":None,
             "is_armed" : False,
+            "obstacle":False,
             "goals":""
         }
 
