@@ -11,10 +11,10 @@ class DroneTelemetryMonitor:
         self.csv_parent_path = "/mnt/c/Users/lucas/Workspace/unexpected_scenario_handling_system/res/collected_data/"
         self.current_csv_name = self.get_current_csv_name("PX4_collected_telemetry_{}.csv")
         self.drone = drone
-        self.scenario_name = ""
+        self.action = ""
         self.telemetry_data = {
             "time": None,
-            "action":None,
+            "action":"",
             "target_distance":None,
             "origin_distance": None,
             "velocity.north": None,
@@ -30,8 +30,8 @@ class DroneTelemetryMonitor:
             "target_lat":None,
             "target_lon":None,
             "target_alt":None,
-            "onWater":None,
-            "bad_connection":None,
+            "onWater":False,
+            "bad_connection":False,
             "is_armed" : False,
             "obstacle":False,
             "goals":""
@@ -76,8 +76,8 @@ class DroneTelemetryMonitor:
     def get_telimetry(self):
         return self.telemetry_data
     
-    def set_scenario(self, scenario_name):
-        self.scenario_name = scenario_name
+    def set_action(self, action):
+        self.action = action
     
     def set_origin_position(self,lat,lon,alt):
         self.telemetry_data["origin_lat"] = lat
@@ -89,7 +89,7 @@ class DroneTelemetryMonitor:
            self.telemetry_data["target_lon"] = lon
            self.telemetry_data["target_alt"] = alt
 
-    async def monitor_scenario_name(self):
+    async def monitor_time(self):
         while True:
             self.telemetry_data["time"] = datetime.now().strftime("%H:%M:%S")
             await asyncio.sleep(1)
@@ -102,9 +102,9 @@ class DroneTelemetryMonitor:
             self.telemetry_data["bad_connection"] = False
         await asyncio.sleep(1)
 
-    async def monitor_time(self):
+    async def monitor_action(self):
         while True:
-            self.telemetry_data["scenario_name"] = self.scenario_name
+            self.telemetry_data["action"] = self.action
             await asyncio.sleep(1)
 
     async def monitor_velocity(self):
@@ -161,8 +161,8 @@ class DroneTelemetryMonitor:
 
     async def _start_monitoring(self):
         tasks = [
+            self.monitor_action(),
             self.monitor_time(),
-            self.monitor_scenario_name(),
             self.monitor_current_position_and_altitude(),
             self.monitor_target_distance(),
             self.monitor_origin_distance(),
