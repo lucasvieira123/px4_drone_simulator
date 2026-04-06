@@ -7,8 +7,8 @@ import csv
 from utils import haversine_distance
 
 class DroneTelemetryMonitor:
-    def __init__(self, drone):
-        self.csv_parent_path = "/mnt/c/Users/lucas/Workspace/unexpected_scenario_handling_system/res/collected_data/"
+    def __init__(self, drone : System, csv_path : str | os.PathLike = "telemetry"):
+        self.csv_path = csv_path
         self.current_csv_name = self.get_current_csv_name("PX4_collected_telemetry_{}.csv")
         self.drone = drone
         self.action = ""
@@ -38,9 +38,18 @@ class DroneTelemetryMonitor:
         }
 
         self.tasks = []
-    
-    def get_current_csv_name(self, template_csv_name):
-        files = os.listdir(self.csv_parent_path)
+
+
+    def __generate_csv_path_if_needed(self):
+        if os.path.isdir(self.csv_path):
+            return 
+        
+        os.mkdir(self.csv_path)
+
+        
+    def get_current_csv_name(self, template_csv_name : str):
+        self.__generate_csv_path_if_needed()
+        files = os.listdir(self.csv_path)
         num_files = len(files)
 
         return template_csv_name.format(num_files)
@@ -48,8 +57,8 @@ class DroneTelemetryMonitor:
     async def save_telemetry_data(self):
 
         # Verificar se o arquivo já existe ou precisa ser criado
-        current_file_path = os.path.join(self.csv_parent_path, self.current_csv_name)
-        while(True):
+        current_file_path = os.path.join(self.csv_path, self.current_csv_name)
+        while True:
             file_exists = False
             try:
                 with open(current_file_path, 'r'):
@@ -76,15 +85,15 @@ class DroneTelemetryMonitor:
     def get_telimetry(self):
         return self.telemetry_data
     
-    def set_action(self, action):
+    def set_action(self, action : str):
         self.action = action
     
-    def set_origin_position(self,lat,lon,alt):
+    def set_origin_position(self,lat : float,lon : float,alt:float):
         self.telemetry_data["origin_lat"] = lat
         self.telemetry_data["origin_lon"] = lon
         self.telemetry_data["origin_alt"] = alt
 
-    def set_target_position(self,lat,lon,alt):
+    def set_target_position(self,lat : float,lon : float,alt:float):
            self.telemetry_data["target_lat"] = lat
            self.telemetry_data["target_lon"] = lon
            self.telemetry_data["target_alt"] = alt
