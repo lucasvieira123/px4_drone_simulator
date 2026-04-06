@@ -1,10 +1,11 @@
 
+from mavsdk import System
 from drone_telemetry_monitor import DroneTelemetryMonitor
 import asyncio
 
 
 class DroneController:
-    def __init__(self, drone):
+    def __init__(self, drone : System):
         self.drone = drone
         self.monitor = DroneTelemetryMonitor(drone)
 

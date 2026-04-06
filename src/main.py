@@ -30,7 +30,7 @@ async def run():
         simulador_controller.kill_all_process()
         
 
-        asyncio.sleep(10)
+        await asyncio.sleep(10)
         # simulador_controller.start_all_processes()
         current_execution = current_execution +1
 

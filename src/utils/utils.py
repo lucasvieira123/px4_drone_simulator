@@ -1,6 +1,6 @@
 import math
 
-def haversine_distance(lat1, lon1, lat2, lon2):
+def haversine_distance(lat1 : float, lon1 : float, lat2 : float, lon2 : float):
     # Raio da Terra em metros
     R = 6371000
 

@@ -4,7 +4,7 @@ from mavsdk import System
 import threading
 from datetime import datetime
 import csv
-from utils import haversine_distance
+from utils.utils import haversine_distance
 
 class DroneTelemetryMonitor:
     def __init__(self, drone : System, csv_path : str | os.PathLike = "telemetry"):
