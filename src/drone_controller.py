@@ -13,10 +13,7 @@ class DroneController:
     async def execute_mission(self):
         goal = False
 
-        
-
         self.monitor.set_target_position(-3.786700, -38.551971, 10)
-   
         self.logger.info("Waiting for drone to have a global position estimate...")
         async for health in self.drone.telemetry.health():
             if health.is_global_position_ok and health.is_home_position_ok and health.is_armable:
@@ -27,22 +24,19 @@ class DroneController:
         async for position in self.drone.telemetry.position():
             if position.latitude_deg is not None:
                 self.monitor.set_origin_position(position.latitude_deg,
-                                             position.longitude_deg,
-                                             position.relative_altitude_m)
+                                                 position.longitude_deg,
+                                                 position.relative_altitude_m)
                 break
 
             await asyncio.sleep(0.5)
-        
 
         self.monitor.start_monitoring()
-        
         await asyncio.sleep(5)
 
         self.logger.info("-- Arming")
         self.monitor.set_action("Arm")
         await self.drone.action.arm()
-        
-        while(True):
+        while True:
             if self.monitor.get_telimetry()["current_lat"] is None:
                 await asyncio.sleep(0.5)
             else:

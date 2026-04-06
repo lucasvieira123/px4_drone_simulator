@@ -4,12 +4,11 @@ from drone_controller import DroneController
 from simulation_controller import SimulationController
 import time
 from mavsdk import System
-from utils.logger import DefaultLogger
+from utils.logger import DefaultLogger, Logger
 import subprocess
 import os
 
-async def run():
-    logger =DefaultLogger()
+async def run(logger : Logger):
     num_of_execution = 1
     current_execution = 1
 
@@ -21,10 +20,10 @@ async def run():
         drone = System()
         await drone.connect(system_address="udp://:14540")
 
-        print("Waiting for drone to connect...")
+        logger.info("Waiting for drone to connect...")
         async for state in drone.core.connection_state():
             if state.is_connected:
-                print(f"-- Connected to drone!")
+                logger.info(f"-- Connected to drone!")
                 break
 
         drone_controller = DroneController(drone, logger)
@@ -41,8 +40,10 @@ async def run():
 if __name__ == "__main__":
     # Inicia os processos
 
+    logger = DefaultLogger()
+
     try:
-        asyncio.run(run())
+        asyncio.run(run(logger))
     except KeyboardInterrupt:
         print("Interrompido pelo usuário.")
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,10 +51,6 @@ if __name__ == "__main__":
         script_path = os.path.join(parent_dir, "kill_between_make_and_ruby.sh")
         # Executa o script bash
         subprocess.run([script_path], shell=True, executable='/bin/bash')
-
-
-
-    
 
     # Reinicia o processo PX4_Autopilot após algum tempo (exemplo)
     # Aqui você pode adicionar um tempo de espera ou uma condição específica para reiniciar
