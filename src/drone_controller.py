@@ -1,13 +1,14 @@
-
+from utils.logger import Logger
 from mavsdk import System
 from drone_telemetry_monitor import DroneTelemetryMonitor
 import asyncio
 
 
 class DroneController:
-    def __init__(self, drone : System):
+    def __init__(self, drone : System, logger : Logger):
         self.drone = drone
-        self.monitor = DroneTelemetryMonitor(drone)
+        self.logger = logger
+        self.monitor = DroneTelemetryMonitor(drone, logger)
 
     async def execute_mission(self):
         goal = False
@@ -16,10 +17,10 @@ class DroneController:
 
         self.monitor.set_target_position(-3.786700, -38.551971, 10)
    
-        print("Waiting for drone to have a global position estimate...")
+        self.logger.info("Waiting for drone to have a global position estimate...")
         async for health in self.drone.telemetry.health():
             if health.is_global_position_ok and health.is_home_position_ok and health.is_armable:
-                print("-- Global position estimate OK")
+                self.logger.info("-- Global position estimate OK")
                 break
             await asyncio.sleep(1)
 
@@ -37,7 +38,7 @@ class DroneController:
         
         await asyncio.sleep(5)
 
-        print("-- Arming")
+        self.logger.info("-- Arming")
         self.monitor.set_action("Arm")
         await self.drone.action.arm()
         
@@ -47,7 +48,7 @@ class DroneController:
             else:
                 break
 
-        print("-- Taking off")
+        self.logger.info("-- Taking off")
         self.monitor.set_action("TakeOff")
         await self.drone.action.goto_location(self.monitor.get_telimetry()["current_lat"],
                                         self.monitor.get_telimetry()["current_lon"], 10, 0)
@@ -56,9 +57,9 @@ class DroneController:
         while(altura<9.5):
             await asyncio.sleep(1)
             altura = self.monitor.get_telimetry()["current_alt"]
-            print(f"Altura: {altura}")
+            self.logger.info(f"Altura: {altura}")
 
-        print("-- Flying")
+        self.logger.info("-- Flying")
         self.monitor.set_action("Flying")
         
 
@@ -70,11 +71,11 @@ class DroneController:
             await asyncio.sleep(1)
             target_distance=self.monitor.get_telimetry()["target_distance"]
             
-            print(f"Target Distance: {target_distance}")
+            self.logger.info(f"Target Distance: {target_distance}")
 
         await asyncio.sleep(5)
 
-        print("-- Landing")
+        self.logger.info("-- Landing")
         self.monitor.set_action("Landing")
         await self.drone.action.land()
 
@@ -82,7 +83,7 @@ class DroneController:
         while(altura>0.0):
             await asyncio.sleep(1)
             altura = self.monitor.get_telimetry()["current_alt"]
-            print(altura)
+            self.logger.info(altura)
 
         await asyncio.sleep(2)    
         

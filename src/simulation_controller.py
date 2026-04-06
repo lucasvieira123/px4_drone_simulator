@@ -1,3 +1,4 @@
+from utils.logger import Logger
 import subprocess
 import os
 import signal
@@ -5,12 +6,12 @@ import time
 
 # Comando que você deseja executar
 class SimulationController:
-    def __init__(self):
+    def __init__(self, logger : Logger):
         # Comandos que você deseja executar
         self.PX4_Autopilot_command = "cd ~/PX4-Autopilot && make px4_sitl gz_x500"
         self.MicroXRCEAgent_command = "cd ~/ && MicroXRCEAgent udp4 -p 8888"
         self.QGroundControl_command = "cd ~/ && ./QGroundControl.AppImage"
-
+        self.logger = logger
         # Lista dos nomes dos processos que você quer matar
         self.process_names = ["xterm", "make", "cmake", "ninja", "px4", "ruby"]
 
@@ -61,7 +62,7 @@ class SimulationController:
             # self.QGroundControl_process = None
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
         
         #Inicia um novo processo PX4_Autopilot
         # self.PX4_Autopilot_process = subprocess.Popen(["xterm", "-hold", "-e", self.PX4_Autopilot_command])

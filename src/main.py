@@ -4,14 +4,16 @@ from drone_controller import DroneController
 from simulation_controller import SimulationController
 import time
 from mavsdk import System
+from utils.logger import DefaultLogger
 import subprocess
 import os
 
 async def run():
+    logger =DefaultLogger()
     num_of_execution = 1
     current_execution = 1
 
-    simulador_controller = SimulationController()
+    simulador_controller = SimulationController(logger)
 
     while current_execution<=num_of_execution:
         simulador_controller.start_all_processes()
@@ -25,7 +27,7 @@ async def run():
                 print(f"-- Connected to drone!")
                 break
 
-        drone_controller = DroneController(drone)
+        drone_controller = DroneController(drone, logger)
         goal = await drone_controller.execute_mission()
         simulador_controller.kill_all_process()
         

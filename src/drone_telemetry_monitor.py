@@ -1,16 +1,18 @@
 import asyncio
 import os
 from mavsdk import System
+from utils.logger import Logger
 import threading
 from datetime import datetime
 import csv
 from utils.utils import haversine_distance
 
 class DroneTelemetryMonitor:
-    def __init__(self, drone : System, csv_path : str | os.PathLike = "telemetry"):
+    def __init__(self, drone : System, logger : Logger, csv_path : str | os.PathLike = "telemetry"):
         self.csv_path = csv_path
         self.current_csv_name = self.get_current_csv_name("PX4_collected_telemetry_{}.csv")
         self.drone = drone
+        self.logger = logger
         self.action = ""
         self.telemetry_data = {
             "time": None,
@@ -127,7 +129,7 @@ class DroneTelemetryMonitor:
     async def monitor_battery(self):
         async for battery in self.drone.telemetry.battery():
             self.telemetry_data["battery"] = battery.remaining_percent
-            # print(f"Bateria: {battery.remaining_percent}%")
+            #print(f"Bateria: {battery.remaining_percent}%")
             # await asyncio.sleep(1)
     
     async def monitor_target_distance(self):
@@ -187,7 +189,7 @@ class DroneTelemetryMonitor:
         # Cancela todas as tarefas armazenadas
         for task in self.tasks:
             task.cancel()
-        print("Todas as tarefas de monitoramento foram canceladas.")
+        self.logger.info("Todas as tarefas de monitoramento foram canceladas.")
             
     def start_monitoring(self):
         loop = asyncio.get_event_loop()
